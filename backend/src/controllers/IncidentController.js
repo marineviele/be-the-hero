@@ -1,12 +1,13 @@
 const connection = require("../database/connection");
 
 module.exports = {
-  /** Get all Incidents; return 5 incidents per page*/
+  /** Get all Incidents; return 5 incidents per page */
   async index(req, res) {
     const { page = 1 } = req.query;
 
+    /** Return total counts in header */
     const [count] = await connection("incidents").count();
-    console.log(count);
+    res.header("x-total-count", count["count(*)"]);
 
     const incidents = await connection("incidents")
       .join("ongs", "ongs.id", "=", "incidents.ong_id")
@@ -21,8 +22,6 @@ module.exports = {
         "ongs.uf"
       ]);
 
-    /* return total counts in header */
-    res.header("X-Total-Count", count["count(*)"]);
     return res.json(incidents);
   },
 
